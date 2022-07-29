@@ -5,6 +5,7 @@ from django.contrib.auth.password_validation import validate_password #패스워
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token #Token model
 from rest_framework.validators import UniqueValidator #이메일 중복 방지를 위한 검증 도구
+from django.contrib.auth import authenticate #유저인증
 
 class RegisterSerializer(serializers.ModelSerializer):#회원가입 시리얼라이저
     email = serializers.EmailField(
@@ -39,6 +40,23 @@ class RegisterSerializer(serializers.ModelSerializer):#회원가입 시리얼라
         user.save()
         token = Token.objects.create(user=user)
         return user
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+    #write_only 옵션을 통해 클라이언트->서버 방향의 역직렬화는 가능, 서버-> 클라이언트 방향의 직렬화는 불가능
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user:
+            token = Token.objects.get(user=user) #토큰에서 유저찾아 응답
+            return token
+        raise serializers.ValidationError(
+            {"error": "Unable to log in with provided credentials."}
+        )
+
+
+
         
 
 
