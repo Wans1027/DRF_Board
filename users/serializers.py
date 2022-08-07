@@ -1,3 +1,4 @@
+import profile
 from urllib.robotparser import RequestRate
 from django.contrib.auth.models import User #User모델
 from django.contrib.auth.password_validation import validate_password #패스워드검증도구
@@ -6,6 +7,7 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token #Token model
 from rest_framework.validators import UniqueValidator #이메일 중복 방지를 위한 검증 도구
 from django.contrib.auth import authenticate #유저인증
+from .models import Profile
 
 class RegisterSerializer(serializers.ModelSerializer):#회원가입 시리얼라이저
     email = serializers.EmailField(
@@ -54,6 +56,12 @@ class LoginSerializer(serializers.Serializer):
         raise serializers.ValidationError(
             {"error": "Unable to log in with provided credentials."}
         )
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = profile
+        fields = ("nickname", "position", "subjects", "image")
+
 
 
 
